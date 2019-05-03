@@ -1,6 +1,9 @@
 package WebServiceTesting.API;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,56 +13,117 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.json.JSONObject;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class GetTest
 {
-	String uri;
+	GetTest gettest;
+	public static String uri;
 	String url = "https://maps.googleapis.com";
 	String path = "/maps/api/geocode/json";
 	CloseableHttpResponse closeableHttpResponse;
+	public static String cityName;
 	
+	@Test
+	public void readExcel() throws EncryptedDocumentException, IOException, InvalidFormatException, InvocationTargetException
+	{
+		FileInputStream fis = new FileInputStream("C:\\Users\\Lenovo\\git\\API\\API\\testdata.xlsx");
+		Workbook wb = WorkbookFactory.create(fis);
+		Sheet sh = wb.getSheetAt(0);
+		
+		int rowStart = sh.getFirstRowNum();
+		int rowEnd = sh.getLastRowNum();
+
+		for(int i=rowStart+1; i<= rowEnd; i++)
+		{
+			
+			Row row = sh.getRow(i);
+			
+			for(int j = row.getFirstCellNum(); j< row.getLastCellNum(); j++)
+			{
+				
+				Cell cell = row.getCell(j);
+				
+				cityName = cell.getStringCellValue();
+				
+				gettest = new GetTest();
+				gettest.addLocationToUrl(cityName);
+									
+				gettest.getGeocode(uri);
+			}
+		}
+	}
 	
-	protected String addLocationToUrl(String path){
+
+	public void writeExcel(int statusCode, String responseString) throws EncryptedDocumentException, IOException, InvalidFormatException, InvocationTargetException
+	{
+		FileInputStream fis = new FileInputStream("C:\\Users\\Lenovo\\git\\API\\API\\testdata.xlsx");
+		Workbook wb = WorkbookFactory.create(fis);
+		Sheet sh = wb.getSheetAt(0);
+		
+		int rowStart = sh.getFirstRowNum();
+		int rowEnd = sh.getLastRowNum();
+
+		for(int i=rowStart+1; i<= rowEnd; i++)
+		{
+			int j=1;
+			Row row = sh.getRow(i);
+				
+				Cell cellStatus = row.createCell(j);
+				cellStatus.setCellValue(statusCode);
+		
+				Cell cellResponse = row.createCell(j+1);
+				cellResponse.setCellValue(responseString);
+			
+				FileOutputStream fos = new FileOutputStream("C:\\Users\\Lenovo\\git\\API\\API\\testdata.xlsx");
+				wb.write(fos);
+				fos.flush();
+				fos.close();
+			
+		}
+	}
+
+	public String addLocationToUrl(String city)
+	{
 	    if(!path.endsWith("?"))
 	        path += "?";
 
 	    List<NameValuePair> params = new LinkedList<NameValuePair>();
 
-	    params.add(new BasicNameValuePair("address", "Mumbai"));
+	    params.add(new BasicNameValuePair("address", city));
 	    params.add(new BasicNameValuePair("key", "AIzaSyDcFk2h1S77eZhtkzM77L5NMZeplhEsBd4"));
 
 	    String paramString = URLEncodedUtils.format(params, "utf-8");
 
-	    path += paramString;
-	    return path;
-	}
-	
-	@BeforeMethod
-	public void setUp() throws ClientProtocolException, IOException{
-		
-		GetTest gettest = new GetTest();
-		String query = gettest.addLocationToUrl(path);
-		
+	    String query = path + paramString;
+	     		
 		uri = url + query;
 		
+		return uri;
 	}
 	
-	@Test
-	public void getGeocode() throws ClientProtocolException, IOException
+	
+	
+	public void getGeocode(String uri) throws ClientProtocolException, IOException, EncryptedDocumentException, InvalidFormatException, InvocationTargetException
 	{
 		RestClient restClient = new RestClient();
 		closeableHttpResponse = restClient.get(uri);
 		
 		int statusCode = closeableHttpResponse.getStatusLine().getStatusCode();
-		System.out.println("Status Code:"+ statusCode);
 		
 		String responseString = EntityUtils.toString(closeableHttpResponse.getEntity(), "UTF-8");
 		
 		JSONObject responseJson = new JSONObject(responseString);
-		System.out.println("Response:"+ responseJson);
-	}
-	
+		
+		gettest = new GetTest();
+		gettest.writeExcel(statusCode, responseString);
+	}	
 }
