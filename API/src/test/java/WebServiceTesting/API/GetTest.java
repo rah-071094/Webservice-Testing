@@ -31,6 +31,7 @@ public class GetTest
 	String path = "/maps/api/geocode/json";
 	CloseableHttpResponse closeableHttpResponse;
 	public static String cityName;
+	public static int count=0;
 	
 	@Test
 	public void readExcel() throws EncryptedDocumentException, IOException, InvalidFormatException, InvocationTargetException
@@ -45,10 +46,8 @@ public class GetTest
 		for(int i=rowStart+1; i<= rowEnd; i++)
 		{
 			
-			Row row = sh.getRow(i);
-			
-			for(int j = row.getFirstCellNum(); j< row.getLastCellNum(); j++)
-			{
+				Row row = sh.getRow(i);
+				int j = 0;
 				
 				Cell cell = row.getCell(j);
 				
@@ -58,7 +57,7 @@ public class GetTest
 				gettest.addLocationToUrl(cityName);
 									
 				gettest.getGeocode(uri);
-			}
+			
 		}
 	}
 	
@@ -68,27 +67,30 @@ public class GetTest
 		FileInputStream fis = new FileInputStream("C:\\Users\\Lenovo\\git\\API\\API\\testdata.xlsx");
 		Workbook wb = WorkbookFactory.create(fis);
 		Sheet sh = wb.getSheetAt(0);
-		
-		int rowStart = sh.getFirstRowNum();
 		int rowEnd = sh.getLastRowNum();
 
-		for(int i=rowStart+1; i<= rowEnd; i++)
+		for(int i=count+1; i<= rowEnd;)
 		{
-			int j=1;
-			Row row = sh.getRow(i);
+				Row row = sh.getRow(i);
+				int j = 1;			
 				
-				Cell cellStatus = row.createCell(j);
-				cellStatus.setCellValue(statusCode);
-		
+				Cell statusCell = row.createCell(j);
+				statusCell.setCellValue(statusCode);
+				
 				Cell cellResponse = row.createCell(j+1);
 				cellResponse.setCellValue(responseString);
-			
+				
 				FileOutputStream fos = new FileOutputStream("C:\\Users\\Lenovo\\git\\API\\API\\testdata.xlsx");
 				wb.write(fos);
 				fos.flush();
 				fos.close();
-			
+				
+				count++;
+				
+				break;
 		}
+			
+		
 	}
 
 	public String addLocationToUrl(String city)
@@ -118,11 +120,9 @@ public class GetTest
 		closeableHttpResponse = restClient.get(uri);
 		
 		int statusCode = closeableHttpResponse.getStatusLine().getStatusCode();
-		
 		String responseString = EntityUtils.toString(closeableHttpResponse.getEntity(), "UTF-8");
 		
 		JSONObject responseJson = new JSONObject(responseString);
-		
 		gettest = new GetTest();
 		gettest.writeExcel(statusCode, responseString);
 	}	

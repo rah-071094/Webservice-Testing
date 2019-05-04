@@ -2,12 +2,12 @@
 <testng-results skipped="0" failed="0" ignored="0" total="1" passed="1">
   <reporter-output>
   </reporter-output>
-  <suite name="Default suite" duration-ms="1069918" started-at="2019-05-03T17:41:20Z" finished-at="2019-05-03T17:59:10Z">
+  <suite name="Default suite" duration-ms="7046" started-at="2019-05-04T04:57:59Z" finished-at="2019-05-04T04:58:06Z">
     <groups>
     </groups>
-    <test name="Default test" duration-ms="1069918" started-at="2019-05-03T17:41:20Z" finished-at="2019-05-03T17:59:10Z">
+    <test name="Default test" duration-ms="7046" started-at="2019-05-04T04:57:59Z" finished-at="2019-05-04T04:58:06Z">
       <class name="WebServiceTesting.API.GetTest">
-        <test-method status="PASS" signature="readExcel()[pri:0, instance:WebServiceTesting.API.GetTest@10e92f8f]" name="readExcel" duration-ms="1069864" started-at="2019-05-03T17:41:20Z" finished-at="2019-05-03T17:59:10Z">
+        <test-method status="PASS" signature="readExcel()[pri:0, instance:WebServiceTesting.API.GetTest@d2cc05a]" name="readExcel" duration-ms="6998" started-at="2019-05-04T04:57:59Z" finished-at="2019-05-04T04:58:06Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- readExcel -->
